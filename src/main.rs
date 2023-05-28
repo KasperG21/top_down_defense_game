@@ -22,6 +22,8 @@ fn main()
     let (mut canvas, numbered_map, mut events) = init();
     let texture_creator = canvas.texture_creator();
 
+    print!("Something stupid");
+
     let mut tile_map: Vec<Vec<Tile>> = vec![];
     let mut counter = (0, 0);
     for array in numbered_map
