@@ -73,19 +73,19 @@ fn main()
         let tile_map_len = tile_map.len();
         let array_len = tile_map[tile_map_len-1].len();
 
-        if keyboard_state.is_scancode_pressed(Scancode::D) && tile_map[tile_map_len-1][array_len-1].position.0 + tile_map[tile_map_len-1][array_len-1].size.0 as i32 > 450 
+        if keyboard_state.is_scancode_pressed(Scancode::D) && tile_map[tile_map_len-1][array_len-1].position.0 - 64 + tile_map[tile_map_len-1][array_len-1].size.0 as i32 > 450 
         {
             move_pos(&mut tile_map, 0);
         }
-        if keyboard_state.is_scancode_pressed(Scancode::S) && tile_map[tile_map_len-1][array_len-1].position.1 + tile_map[tile_map_len-1][array_len-1].size.1 as i32> 260
+        if keyboard_state.is_scancode_pressed(Scancode::S) && tile_map[tile_map_len-1][array_len-1].position.1 - 64 + tile_map[tile_map_len-1][array_len-1].size.1 as i32> 260
         {
             move_pos(&mut tile_map, 1);
         }
-        if keyboard_state.is_scancode_pressed(Scancode::A) && tile_map[0][0].position.0 < 385
+        if keyboard_state.is_scancode_pressed(Scancode::A) && tile_map[0][0].position.0 + 64 < 385
         {
             move_pos(&mut tile_map, 2);
         }
-        if keyboard_state.is_scancode_pressed(Scancode::W) && tile_map[0][0].position.1 < 190
+        if keyboard_state.is_scancode_pressed(Scancode::W) && tile_map[0][0].position.1 + 64 < 190
         {
             move_pos(&mut tile_map, 3);
         }
