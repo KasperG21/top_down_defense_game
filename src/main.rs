@@ -45,9 +45,9 @@ fn main()
 
     let player = Player
     {
-        texture: texture_creator.load_texture("assets/player_states/player.png").unwrap(),
+        texture: texture_creator.load_texture("assets/player_states/player_v1.png").unwrap(),
         position: (384, 193),
-        size: (64, 64),
+        size: (40, 64),
     };
 
     let frame_delay = 1000000/60;
@@ -73,7 +73,7 @@ fn main()
         let tile_map_len = tile_map.len();
         let array_len = tile_map[tile_map_len-1].len();
 
-        if keyboard_state.is_scancode_pressed(Scancode::D) && tile_map[tile_map_len-1][array_len-1].position.0 - 64 + tile_map[tile_map_len-1][array_len-1].size.0 as i32 > 450 
+        if keyboard_state.is_scancode_pressed(Scancode::D) && tile_map[tile_map_len-1][array_len-1].position.0 - 40 + tile_map[tile_map_len-1][array_len-1].size.0 as i32 > 450 
         {
             move_pos(&mut tile_map, 0);
         }
@@ -118,7 +118,7 @@ fn render(canvas: &mut Canvas<video::Window>, tile_map: &mut Vec<Vec<Tile>>, pla
         }
     }
     canvas.copy(&player.texture,
-        Rect::new(0, 0, 32, 32),
+        Rect::new(0, 0, 12, 25),
         Rect::new(player.position.0, player.position.1, player.size.0, player.size.1))
         .unwrap();
 
