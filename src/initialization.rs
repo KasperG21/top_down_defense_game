@@ -1,6 +1,6 @@
 pub mod init
 {
-    use sdl2::{self, render::{Canvas}, EventPump, video::{self}};
+    use sdl2::{self, render::Canvas, EventPump, video};
 
     pub fn init<'a>() -> (Canvas<video::Window>, Vec<Vec<u32>>, EventPump)
     {
