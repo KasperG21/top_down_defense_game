@@ -1,6 +1,6 @@
 pub mod tile
 {
-    use sdl2::{render::{Texture}};
+    use sdl2::render::Texture;
 
     pub struct Tile<'a>
     {
@@ -15,7 +15,7 @@ pub mod tile
         {
             Tile
             {
-                texture: texture,
+                texture,
                 position: (raw_pos.0 * 64, raw_pos.1 * 64),
                 size: (64, 64),
             }
