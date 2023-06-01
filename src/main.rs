@@ -140,3 +140,30 @@ struct Player<'a> {
     position: (i32, i32),
     size: (u32, u32),
 }
+
+struct Npc<'a>
+{
+    texture: Texture<'a>, 
+    position: (i32, i32),
+    size: (u32, u32),
+    name: String,
+}
+
+impl<'a> Npc<'a>
+{
+    fn spawn(texture: Texture, name: String) -> Self
+    {
+        match name
+        {
+            String::from("George") => {
+                Npc
+                {
+                    texture,
+                    position: (0, 0),
+                    size: (32, 32),
+                    name,
+                }
+            }
+        }
+    }
+}
