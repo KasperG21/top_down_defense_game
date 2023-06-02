@@ -50,9 +50,9 @@ fn main()
         size: (40, 64),
     };
 
-    let george = Npc::spawn(texture_creator.load_texture("assets/NPCs/George.png").unwrap(), "George");
+    let mut george = Npc::spawn(texture_creator.load_texture("assets/NPCs/George.png").unwrap(), "George");
 
-    let npcs = vec![george];
+    let mut npcs = vec![george];
 
     let frame_delay = 1000000/60;
     let game_time = Instant::now();
@@ -79,20 +79,20 @@ fn main()
 
         if keyboard_state.is_scancode_pressed(Scancode::D) && tile_map[tile_map_len-1][array_len-1].position.0 - 40 + tile_map[tile_map_len-1][array_len-1].size.0 as i32 > 450 
         {
-            move_pos(&mut tile_map, 0, &mut npcs);
+            move_pos(&mut tile_map, &mut npcs, 0);
         }
         if keyboard_state.is_scancode_pressed(Scancode::S) && tile_map[tile_map_len-1][array_len-1].position.1 - 64 + tile_map[tile_map_len-1][array_len-1].size.1 as i32> 260
         {
-            move_pos(&mut tile_map, 1, &mut npcs);
+            move_pos(&mut tile_map, &mut npcs, 1);
         }
         if keyboard_state.is_scancode_pressed(Scancode::A) && tile_map[0][0].position.0 + 64 < 385
         {
-            move_pos(&mut tile_map, 2, &mut npcs);
+            move_pos(&mut tile_map, &mut npcs, 2);
         }
      
         if keyboard_state.is_scancode_pressed(Scancode::W) && tile_map[0][0].position.1 + 64 < 190
         {
-            move_pos(&mut tile_map, 3, &mut npcs);
+            move_pos(&mut tile_map, &mut npcs, 3);
         }
 
         render(&mut canvas, &mut tile_map, &player, &npcs);
@@ -109,7 +109,7 @@ fn main()
 
 fn render(canvas: &mut Canvas<video::Window>, tile_map: &mut Vec<Vec<Tile>>, player: &Player, npcs: &Vec<Npc>)
 {
-    canvas.set_draw_color(Color::WHITE);
+    canvas.set_draw_color(Color::BLACK);
     canvas.clear();
 
     for array in tile_map
@@ -151,7 +151,7 @@ fn move_pos(tile_map: &mut Vec<Vec<Tile>>, npcs: &mut Vec<Npc>, dir: u8)
     
     for n in npcs
     { 
-         
+        n.move_npc(dir) 
     }
 }
 struct Player<'a> {
@@ -178,7 +178,7 @@ impl<'a> Npc<'a>
                 Npc
                 {
                     texture,
-                    position: (0, 0),
+                    position: (1280, 192),
                     size: (64, 64),
                     name,
                 }
