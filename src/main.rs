@@ -116,9 +116,18 @@ fn main()
                         test_4 = false;
                     }
             //checking if "E" is pressed and if the player is in the range of one of the npcs
-            if keyboard_state.is_scancode_pressed(Scancode::E) && (test || test_2 || test_3 || test_4)
+            if keyboard_state.is_scancode_pressed(Scancode::E) 
             {
-                n.start_dialogue(&mut player, &mut in_dialogue);
+                let mut count = 0;
+                if test { count += 1 }
+                if test_2 { count += 1 }
+                if test_3 { count += 1 }
+                if test_4 { count += 1 }
+                
+                if count < 4
+                {
+                    n.start_dialogue(&mut player, &mut in_dialogue);
+                }
             }
         }
 
