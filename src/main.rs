@@ -50,7 +50,7 @@ fn main()
         size: (40, 64),
     };
 
-    let mut george = Npc::spawn(texture_creator.load_texture("assets/NPCs/George.png").unwrap(), "George");
+    let george = Npc::spawn(texture_creator.load_texture("assets/NPCs/George.png").unwrap(), "George");
 
     let mut npcs = vec![george];
 
@@ -77,20 +77,42 @@ fn main()
         let tile_map_len = tile_map.len();
         let array_len = tile_map[tile_map_len-1].len();
 
-        if keyboard_state.is_scancode_pressed(Scancode::D) && tile_map[tile_map_len-1][array_len-1].position.0 - 40 + tile_map[tile_map_len-1][array_len-1].size.0 as i32 > 450 
+        let mut test = true;
+        let mut test_2 = true;
+        let mut test_3 = true;
+        let mut test_4 = true;
+        for n in npcs.iter_mut()
+        {
+            if player.position.0 + player.size.0 as i32 >= n.position.0 &&
+                player.position.0 + player.size.0 as i32 <= n.position.0 + n.size.0 as i32 &&
+                    player.position.1 + player.size.1 as i32 >= n.position.1 &&
+                    player.position.1 <= n.position.1 + n.size.1 as i32
+                    {
+                        test = false;
+                    }
+            if player.position.0 <= n.position.0 + n.size.0 as i32&&
+                player.position.0 >= n.position.0 &&
+                    player.position.1 + player.size.1 as i32 >= n.position.1 &&
+                    player.position.1 <= n.position.1 + n.size.1 as i32
+                    {
+                        test_3 = false;
+                    }
+        }
+
+        if keyboard_state.is_scancode_pressed(Scancode::D) && test &&tile_map[tile_map_len-1][array_len-1].position.0 - 40 + tile_map[tile_map_len-1][array_len-1].size.0 as i32 > 450 
         {
             move_pos(&mut tile_map, &mut npcs, 0);
         }
-        if keyboard_state.is_scancode_pressed(Scancode::S) && tile_map[tile_map_len-1][array_len-1].position.1 - 64 + tile_map[tile_map_len-1][array_len-1].size.1 as i32> 260
+        if keyboard_state.is_scancode_pressed(Scancode::S) && test_2&&tile_map[tile_map_len-1][array_len-1].position.1 - 64 + tile_map[tile_map_len-1][array_len-1].size.1 as i32> 260
         {
             move_pos(&mut tile_map, &mut npcs, 1);
         }
-        if keyboard_state.is_scancode_pressed(Scancode::A) && tile_map[0][0].position.0 + 64 < 385
+        if keyboard_state.is_scancode_pressed(Scancode::A) && test_3 && tile_map[0][0].position.0 + 64 < 385
         {
             move_pos(&mut tile_map, &mut npcs, 2);
         }
      
-        if keyboard_state.is_scancode_pressed(Scancode::W) && tile_map[0][0].position.1 + 64 < 190
+        if keyboard_state.is_scancode_pressed(Scancode::W) && test_4 && tile_map[0][0].position.1 + 64 < 190
         {
             move_pos(&mut tile_map, &mut npcs, 3);
         }
