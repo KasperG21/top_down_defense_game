@@ -43,7 +43,7 @@ fn main()
         counter.0 = 0;
     }
 
-    let player = Player
+    let mut player = Player
     {
         texture: texture_creator.load_texture("assets/player_states/player_v1.png").unwrap(),
         position: (384, 193),
@@ -53,6 +53,8 @@ fn main()
     let george = Npc::spawn(texture_creator.load_texture("assets/NPCs/George.png").unwrap(), "George");
 
     let mut npcs = vec![george];
+
+    let mut in_dialogue = false;
 
     let frame_delay = 1000000/60;
     let game_time = Instant::now();
@@ -83,6 +85,8 @@ fn main()
         let mut test_4 = true;
         for n in npcs.iter_mut()
         {
+            //seamingly random numbers added for the sake of smoothness
+
             if player.position.0 + player.size.0 as i32 >= n.position.0 &&
                 player.position.0 + player.size.0 as i32 <= n.position.0 + n.size.0 as i32 &&
                     player.position.1 + player.size.1 as i32 >= n.position.1 &&
@@ -97,6 +101,25 @@ fn main()
                     {
                         test_3 = false;
                     }
+            if player.position.0 + 10 >= n.position.0 &&
+                player.position.0 <= n.position.0 + n.size.0 as i32 - 5 &&
+                    player.position.1 + player.size.1 as i32 + 10 > n.position.1 &&
+                    player.position.1 < n.position.1 + n.size.1 as i32
+                    {
+                        test_2 = false;
+                    }
+            if player.position.0 + 10 >= n.position.0 &&
+                player.position.0 <= n.position.0 + n.size.0 as i32 &&
+                    player.position.1 < n.position.1 + n.size.1 as i32 + 10 &&
+                    player.position.1 > n.position.1 + n.size.1 as i32 - 5
+                    {
+                        test_4 = false;
+                    }
+            //checking if "E" is pressed and if the player is in the range of one of the npcs
+            if keyboard_state.is_scancode_pressed(Scancode::E) && (test || test_2 || test_3 || test_4)
+            {
+                n.start_dialogue(&mut player, &mut in_dialogue);
+            }
         }
 
         if keyboard_state.is_scancode_pressed(Scancode::D) && test &&tile_map[tile_map_len-1][array_len-1].position.0 - 40 + tile_map[tile_map_len-1][array_len-1].size.0 as i32 > 450 
@@ -111,13 +134,19 @@ fn main()
         {
             move_pos(&mut tile_map, &mut npcs, 2);
         }
-     
         if keyboard_state.is_scancode_pressed(Scancode::W) && test_4 && tile_map[0][0].position.1 + 64 < 190
         {
             move_pos(&mut tile_map, &mut npcs, 3);
         }
 
-        render(&mut canvas, &mut tile_map, &player, &npcs);
+        if in_dialogue
+        {
+            render(&mut canvas, &mut tile_map, &player, &npcs, Some(&texture_creator.load_texture("assets/dialogue_bg.png").unwrap()));
+        }
+        else
+        {
+            render(&mut canvas, &mut tile_map, &player, &npcs, None); 
+        }
 
         let end_instant = start_instant.elapsed().as_micros();
         if end_instant < frame_delay
@@ -129,7 +158,7 @@ fn main()
     println!("Average fps = {}", frames/game_time.elapsed().as_secs_f64());
 }
 
-fn render(canvas: &mut Canvas<video::Window>, tile_map: &mut Vec<Vec<Tile>>, player: &Player, npcs: &Vec<Npc>)
+fn render(canvas: &mut Canvas<video::Window>, tile_map: &mut Vec<Vec<Tile>>, player: &Player, npcs: &Vec<Npc>, in_dialogue: Option<&Texture>)
 {
     canvas.set_draw_color(Color::BLACK);
     canvas.clear();
@@ -157,6 +186,15 @@ fn render(canvas: &mut Canvas<video::Window>, tile_map: &mut Vec<Vec<Tile>>, pla
                 Rect::new(0, 0, 12, 25),
                 Rect::new(player.position.0, player.position.1, player.size.0, player.size.1))
         .unwrap();
+
+    if let Some(x) = in_dialogue
+    {
+        canvas.copy(
+            x,
+            Rect::new(0, 0, 800, 250),
+            Rect::new(0, 200, 800, 250))
+            .unwrap();
+    }
 
     canvas.present();
 }
@@ -218,6 +256,15 @@ impl<'a> Npc<'a>
             2 => self.position.0 += 5,
             3 => self.position.1 += 5,
             _ => (),
+        }
+    }
+    
+    fn start_dialogue(&self, player: &mut Player, in_dialogue: &mut bool)
+    {
+        if !*in_dialogue
+        {
+            *in_dialogue = true; 
+            println!("In dialogue with {}", self.name);
         }
     }
 }
