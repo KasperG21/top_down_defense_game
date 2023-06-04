@@ -131,25 +131,29 @@ fn main()
             }
         }
 
-        if keyboard_state.is_scancode_pressed(Scancode::D) && test &&tile_map[tile_map_len-1][array_len-1].position.0 - 40 + tile_map[tile_map_len-1][array_len-1].size.0 as i32 > 450 
+        if keyboard_state.is_scancode_pressed(Scancode::D) && !in_dialogue && test &&tile_map[tile_map_len-1][array_len-1].position.0 - 40 + tile_map[tile_map_len-1][array_len-1].size.0 as i32 > 450 
         {
             move_pos(&mut tile_map, &mut npcs, 0);
         }
-        if keyboard_state.is_scancode_pressed(Scancode::S) && test_2&&tile_map[tile_map_len-1][array_len-1].position.1 - 64 + tile_map[tile_map_len-1][array_len-1].size.1 as i32> 260
+        if keyboard_state.is_scancode_pressed(Scancode::S) && !in_dialogue && test_2 &&tile_map[tile_map_len-1][array_len-1].position.1 - 64 + tile_map[tile_map_len-1][array_len-1].size.1 as i32> 260
         {
             move_pos(&mut tile_map, &mut npcs, 1);
         }
-        if keyboard_state.is_scancode_pressed(Scancode::A) && test_3 && tile_map[0][0].position.0 + 64 < 385
+        if keyboard_state.is_scancode_pressed(Scancode::A) && !in_dialogue&& test_3 && tile_map[0][0].position.0 + 64 < 385
         {
             move_pos(&mut tile_map, &mut npcs, 2);
         }
-        if keyboard_state.is_scancode_pressed(Scancode::W) && test_4 && tile_map[0][0].position.1 + 64 < 190
+        if keyboard_state.is_scancode_pressed(Scancode::W) && !in_dialogue&& test_4 && tile_map[0][0].position.1 + 64 < 190
         {
             move_pos(&mut tile_map, &mut npcs, 3);
         }
 
         if in_dialogue
         {
+            if keyboard_state.is_scancode_pressed(Scancode::Return)
+            {
+                in_dialogue = false; 
+            }
             render(&mut canvas, &mut tile_map, &player, &npcs, Some(&texture_creator.load_texture("assets/dialogue_bg.png").unwrap()));
         }
         else
