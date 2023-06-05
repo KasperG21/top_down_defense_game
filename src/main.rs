@@ -8,8 +8,8 @@ use sdl2::
     video,
     pixels::Color,
     rect::Rect,
-    image::LoadTexture
-};
+    image::LoadTexture, ttf::Font,
+    surface::Surface};
 
 mod tile;
 use tile::tile::Tile;
@@ -21,6 +21,8 @@ fn main()
 {
     let (mut canvas, numbered_map, mut events) = init();
     let texture_creator = canvas.texture_creator();
+    let ttf_context = sdl2::ttf::init().unwrap();
+    let loaded_font = ttf_context.load_font("assets/font.ttf", 26).unwrap();
 
     let mut tile_map: Vec<Vec<Tile>> = vec![];
     let mut counter = (0, 0);
@@ -126,7 +128,7 @@ fn main()
                 
                 if count < 4
                 {
-                    n.start_dialogue(&mut player, &mut in_dialogue);
+                    n.start_dialogue(&mut player, &mut in_dialogue, &loaded_font);
                 }
             }
         }
@@ -239,6 +241,7 @@ struct Npc<'a>
     position: (i32, i32),
     size: (u32, u32),
     name: &'a str,
+    dialogue: &'a str,
 }
 
 impl<'a> Npc<'a>
@@ -254,6 +257,7 @@ impl<'a> Npc<'a>
                     position: (1280, 192),
                     size: (64, 64),
                     name,
+                    dialogue: "Hi, I am george. I live in this weird realm called: Yenrab.",
                 }
             }
             _ => Npc::spawn(texture, "George"),
@@ -272,12 +276,16 @@ impl<'a> Npc<'a>
         }
     }
     
-    fn start_dialogue(&self, player: &mut Player, in_dialogue: &mut bool)
+    fn start_dialogue(&self, player: &mut Player, in_dialogue: &mut bool, font: &Font) -> Surface
     {
         if !*in_dialogue
         {
             *in_dialogue = true; 
             println!("In dialogue with {}", self.name);
         }
+
+        font.render(self.dialogue)
+            .blended(Color::WHITE)
+            .unwrap()
     }
 }
