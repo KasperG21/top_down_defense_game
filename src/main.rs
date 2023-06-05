@@ -23,6 +23,7 @@ fn main()
     let texture_creator = canvas.texture_creator();
     let ttf_context = sdl2::ttf::init().unwrap();
     let loaded_font = ttf_context.load_font("assets/font.ttf", 26).unwrap();
+    let text: Texture;
 
     let mut tile_map: Vec<Vec<Tile>> = vec![];
     let mut counter = (0, 0);
@@ -128,7 +129,7 @@ fn main()
                 
                 if count < 4
                 {
-                    n.start_dialogue(&mut player, &mut in_dialogue, &loaded_font);
+                    text = texture_creator.create_texture_from_surface(n.start_dialogue(&mut player, &mut in_dialogue, &loaded_font));
                 }
             }
         }
@@ -156,11 +157,11 @@ fn main()
             {
                 in_dialogue = false; 
             }
-            render(&mut canvas, &mut tile_map, &player, &npcs, Some(&texture_creator.load_texture("assets/dialogue_bg.png").unwrap()));
+            render(&mut canvas, &mut tile_map, &player, &npcs, Some(&texture_creator.load_texture("assets/dialogue_bg.png").unwrap()), &texture_creator);
         }
         else
         {
-            render(&mut canvas, &mut tile_map, &player, &npcs, None); 
+            render(&mut canvas, &mut tile_map, &player, &npcs, None, text); 
         }
 
         let end_instant = start_instant.elapsed().as_micros();
@@ -173,7 +174,7 @@ fn main()
     println!("Average fps = {}", frames/game_time.elapsed().as_secs_f64());
 }
 
-fn render(canvas: &mut Canvas<video::Window>, tile_map: &mut Vec<Vec<Tile>>, player: &Player, npcs: &Vec<Npc>, in_dialogue: Option<&Texture>)
+fn render(canvas: &mut Canvas<video::Window>, tile_map: &mut Vec<Vec<Tile>>, player: &Player, npcs: &Vec<Npc>, in_dialogue: Option<&Texture>, text: &Texture)
 {
     canvas.set_draw_color(Color::BLACK);
     canvas.clear();
@@ -209,6 +210,10 @@ fn render(canvas: &mut Canvas<video::Window>, tile_map: &mut Vec<Vec<Tile>>, pla
             Rect::new(0, 0, 800, 250),
             Rect::new(0, 200, 800, 250))
             .unwrap();
+        for n in npcs
+        {
+            canvas.copy(texture_creator.create_texture_from_surface(n.j), src, dst)
+        }
     }
 
     canvas.present();
