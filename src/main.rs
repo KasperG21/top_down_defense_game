@@ -1,4 +1,4 @@
-use std::time::{Instant, Duration};
+use std::{time::{Instant, Duration}, fs::read_to_string, path::Path};
 
 use sdl2::
 {
@@ -22,7 +22,7 @@ fn main()
     let (mut canvas, numbered_map, mut events) = init();
     let texture_creator = canvas.texture_creator();
     let ttf_context = sdl2::ttf::init().unwrap();
-    let loaded_font = ttf_context.load_font("assets/font.ttf", 26).unwrap();
+    let loaded_font = ttf_context.load_font("assets/font.ttf", 16).unwrap();
     let mut text = None;
 
     let mut tile_map: Vec<Vec<Tile>> = vec![];
@@ -58,6 +58,7 @@ fn main()
     let mut npcs = vec![george];
 
     let mut in_dialogue = false;
+    let mut temp_dialogue;
 
     let frame_delay = 1000000/60;
     let game_time = Instant::now();
@@ -129,7 +130,7 @@ fn main()
                 
                 if count < 4
                 {
-                    text = Some(&texture_creator.create_texture_from_surface(n.start_dialogue(&mut player, &mut in_dialogue, &loaded_font)).unwrap());
+                    n.start_dialogue(&mut player, &mut in_dialogue)
                 }
             }
         }
@@ -153,15 +154,22 @@ fn main()
 
         if in_dialogue
         {
-            if keyboard_state.is_scancode_pressed(Scancode::Return)
+            for n in npcs.iter_mut()
             {
-                in_dialogue = false; 
+                if keyboard_state.is_scancode_pressed(Scancode::Return)
+                {
+                    temp_dialogue = n.get_dialogue_text(&loaded_font);
+                }
+                if let Some(x) = temp_dialogue
+                {
+                    text = Some((texture_creator.create_texture_from_surface(x.0).unwrap(), x.1));
+                }
             }
-            render(&mut canvas, &mut tile_map, &player, &npcs, Some(&texture_creator.load_texture("assets/dialogue_bg.png").unwrap()), text);
+            render(&mut canvas, &mut tile_map, &player, &npcs, Some(&texture_creator.load_texture("assets/dialogue_bg.png").unwrap()), &text);
         }
         else
         {
-            render(&mut canvas, &mut tile_map, &player, &npcs, None, text); 
+            render(&mut canvas, &mut tile_map, &player, &npcs, None, &text); 
         }
 
         let end_instant = start_instant.elapsed().as_micros();
@@ -174,7 +182,7 @@ fn main()
     println!("Average fps = {}", frames/game_time.elapsed().as_secs_f64());
 }
 
-fn render(canvas: &mut Canvas<video::Window>, tile_map: &mut Vec<Vec<Tile>>, player: &Player, npcs: &Vec<Npc>, in_dialogue: Option<&Texture>, text: Option<&Texture>)
+fn render(canvas: &mut Canvas<video::Window>, tile_map: &mut Vec<Vec<Tile>>, player: &Player, npcs: &Vec<Npc>, in_dialogue: Option<&Texture>, text: &Option<(Texture, u32)>)
 {
     canvas.set_draw_color(Color::BLACK);
     canvas.clear();
@@ -210,8 +218,13 @@ fn render(canvas: &mut Canvas<video::Window>, tile_map: &mut Vec<Vec<Tile>>, pla
             Rect::new(0, 0, 800, 250),
             Rect::new(0, 200, 800, 250))
             .unwrap();
-        for n in npcs
+        if let Some(x) = text
         {
+            canvas.copy(
+                &x.0,
+                Rect::new(0, 0, 16*x.1, 16),
+                Rect::new(25, 230, 16*x.1, 32))
+                .unwrap();
         }
     }
 
@@ -245,7 +258,7 @@ struct Npc<'a>
     position: (i32, i32),
     size: (u32, u32),
     name: &'a str,
-    dialogue: (usize, Box<[&'a str]>),
+    dialogue: (usize, Vec<String>),
 }
 
 impl<'a> Npc<'a>
@@ -261,7 +274,19 @@ impl<'a> Npc<'a>
                     position: (1280, 192),
                     size: (64, 64),
                     name,
-                    dialogue: (0, ["Hi, I am george. I live in this weird realm called: Yenrab.", "But there is a problem...", "A terrible monster, BRNY, as we call him, tries to destroy or beatifull home!"]),
+                    dialogue: {
+                        let arg_1 = 0;
+                        let lines = read_to_string(Path::new("assets/NPCs/george.dialogue"))
+                            .unwrap();
+
+                        let mut arg_2 = vec![];
+                        for line in lines.lines()
+                        {
+                            arg_2.push(line.to_string()); 
+                        }
+                            
+                        (arg_1, arg_2)
+                    },
                 }
             }
             _ => Npc::spawn(texture, "George"),
@@ -280,20 +305,24 @@ impl<'a> Npc<'a>
         }
     }
     
-    fn start_dialogue(&self, player: &mut Player, in_dialogue: &mut bool, font: &Font) -> Surface
+    fn start_dialogue(&self, player: &mut Player, in_dialogue: &mut bool)
     {
         if !*in_dialogue
         {
             *in_dialogue = true; 
             println!("In dialogue with {}", self.name);
         }
-
-        font.render(self.dialogue)
-            .blended(Color::WHITE)
-            .unwrap()
     }
-    fn get_dialogue_text(&self)
+    fn get_dialogue_text(&mut self, font: &Font) -> Option<(Surface, u32)>
     {
-
+        if let Some(x) = self.dialogue.1.get(0)
+        {
+            self.dialogue.0 += 1;
+            Some((font.render(x).blended(Color::BLACK).unwrap(), x.len().try_into().unwrap()))
+        }
+        else
+        {
+            None
+        }
     }
 }
