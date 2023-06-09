@@ -25,6 +25,8 @@ fn main()
     let loaded_font = ttf_context.load_font("assets/font.ttf", 16).unwrap();
     let mut text = None;
 
+    let mut timer: u128 = 50000;
+
     let mut tile_map: Vec<Vec<Tile>> = vec![];
     let mut counter = (0, 0);
     for array in numbered_map
@@ -58,7 +60,6 @@ fn main()
     let mut npcs = vec![george];
 
     let mut in_dialogue = false;
-    let mut temp_dialogue;
 
     let frame_delay = 1000000/60;
     let game_time = Instant::now();
@@ -156,13 +157,21 @@ fn main()
         {
             for n in npcs.iter_mut()
             {
-                if keyboard_state.is_scancode_pressed(Scancode::Return)
+                if timer >= 100000
                 {
-                    temp_dialogue = n.get_dialogue_text(&loaded_font);
-                }
-                if let Some(x) = temp_dialogue
-                {
-                    text = Some((texture_creator.create_texture_from_surface(x.0).unwrap(), x.1));
+                    if keyboard_state.is_scancode_pressed(Scancode::Return) || n.dialogue.0 == 0
+                    {
+                        if let Some(x) = n.get_dialogue_text(&loaded_font)
+                        {
+                            timer = 0;
+                            text = Some((texture_creator.create_texture_from_surface(x.0).unwrap(), x.1));
+                        }
+                        else
+                        {
+                            text = None;
+                            in_dialogue = false;
+                        }
+                    }
                 }
             }
             render(&mut canvas, &mut tile_map, &player, &npcs, Some(&texture_creator.load_texture("assets/dialogue_bg.png").unwrap()), &text);
@@ -178,6 +187,7 @@ fn main()
             std::thread::sleep(Duration::from_micros((frame_delay-end_instant-750) as u64));
         }
         frames += 1.;
+        timer += end_instant;
     }
     println!("Average fps = {}", frames/game_time.elapsed().as_secs_f64());
 }
@@ -313,12 +323,21 @@ impl<'a> Npc<'a>
             println!("In dialogue with {}", self.name);
         }
     }
-    fn get_dialogue_text(&mut self, font: &Font) -> Option<(Surface, u32)>
+    fn get_dialogue_text(&mut self, font: &Font) -> Option<(Surface, u32, bool)>
     {
-        if let Some(x) = self.dialogue.1.get(0)
+        if let Some(x) = self.dialogue.1.get(self.dialogue.0)
         {
             self.dialogue.0 += 1;
-            Some((font.render(x).blended(Color::BLACK).unwrap(), x.len().try_into().unwrap()))
+
+            let mut temp = false;
+            if self.dialogue.0 == 1 
+            {
+                temp = true;
+            }
+            
+            println!("{}", self.dialogue.0);
+
+            Some((font.render(x).blended(Color::BLACK).unwrap(), x.len().try_into().unwrap(), temp))
         }
         else
         {
