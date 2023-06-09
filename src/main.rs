@@ -1,5 +1,7 @@
 use std::{time::{Instant, Duration}, fs::read_to_string, path::Path};
 
+use serde_json;
+
 use sdl2::
 {
     self,
@@ -269,6 +271,7 @@ struct Npc<'a>
     size: (u32, u32),
     name: &'a str,
     dialogue: (usize, Vec<String>),
+    quest_index: usize,
 }
 
 impl<'a> Npc<'a>
@@ -286,17 +289,15 @@ impl<'a> Npc<'a>
                     name,
                     dialogue: {
                         let arg_1 = 0;
-                        let lines = read_to_string(Path::new("assets/NPCs/george.dialogue"))
+                        let raw_json = read_to_string(Path::new("assets/NPCs/george.dialogue"))
                             .unwrap();
+                        let data = serde_json::from_str(&raw_json);
+                        println!("{:#?}", data);
 
                         let mut arg_2 = vec![];
-                        for line in lines.lines()
-                        {
-                            arg_2.push(line.to_string()); 
-                        }
-                            
                         (arg_1, arg_2)
                     },
+                    quest_index: 0
                 }
             }
             _ => Npc::spawn(texture, "George"),
